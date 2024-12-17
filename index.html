@@ -14,14 +14,11 @@
 <textarea id="codeInput" placeholder="Paste or type your code here..."></textarea>
 
 <!-- Button to Display Code -->
-<button onclick="displayCode()">Display Code</button>
+<button onclick="addCodeTweet()">Add Code Tweet</button>
 
-<!-- Output Container -->
-<h2>Your Code (Click to Copy):</h2>
-<div id="output" class="tweet-like-block" onclick="copyCodeToClipboard(event)">
-  <!-- Copy Tooltip -->
-  <span id="tooltip" class="copy-tooltip">Copied!</span>
-</div>
+<!-- Tweets Container -->
+<h2>Your Code Tweets (Click to Copy):</h2>
+<div id="tweetsContainer"></div>
 
 <script src="script.js"></script>
 </body>
