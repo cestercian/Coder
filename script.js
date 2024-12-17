@@ -1,3 +1,7 @@
+// Import Firebase modules (v9+)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
 // Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyDaCViiww_eq9HewkSa5_Xx6DAl9N0c75c",
@@ -9,38 +13,36 @@ const firebaseConfig = {
     appId: "1:626621100036:web:710b29eeb150cab8280551"
 };
 
-// Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
+// Initialize Firebase and Database
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
-// Function to Add Code Tweet to Firebase
+document.getElementById("code-tweet").addEventListener('click', addCodeTweet)
+
+// Function to Add Code Tweet
 function addCodeTweet() {
     const codeInput = document.getElementById("codeInput").value;
 
-    // Do not save empty input
     if (codeInput.trim() === "") return;
 
-    // Save the code to Firebase Realtime Database
-    const codeRef = database.ref("tweets/");
-    const newCodeRef = codeRef.push(); // Generate a unique ID
-    newCodeRef.set({
+    const codeRef = ref(database, "tweets/");
+    const newCodeRef = push(codeRef); // Generate unique ID
+    set(newCodeRef, {
         code: codeInput,
         timestamp: Date.now()
     });
 
-    // Clear the input
     document.getElementById("codeInput").value = "";
 }
 
 // Function to Fetch and Display Tweets
 function displayTweets() {
     const tweetsContainer = document.getElementById("tweetsContainer");
-    tweetsContainer.innerHTML = "<p>Loading...</p>"; // Show loader
+    tweetsContainer.innerHTML = "<p>Loading...</p>";
 
-    // Listen for changes in the database
-    const codeRef = database.ref("tweets/");
-    codeRef.on("value", (snapshot) => {
-        tweetsContainer.innerHTML = ""; // Clear the loader
+    const codeRef = ref(database, "tweets/");
+    onValue(codeRef, (snapshot) => {
+        tweetsContainer.innerHTML = "";
         if (!snapshot.exists()) {
             tweetsContainer.innerHTML = "<p>No tweets found!</p>";
             return;
@@ -52,12 +54,8 @@ function displayTweets() {
             tweetBlock.className = "tweet-like-block";
             tweetBlock.textContent = tweetData.code;
 
-            // Add Copy Functionality
-            tweetBlock.onclick = function () {
-                copyCodeToClipboard(tweetData.code, tweetBlock);
-            };
+            tweetBlock.onclick = () => copyCodeToClipboard(tweetData.code, tweetBlock);
 
-            // Tooltip for Copy Confirmation
             const tooltip = document.createElement("span");
             tooltip.className = "copy-tooltip";
             tooltip.textContent = "Copied!";
@@ -68,22 +66,16 @@ function displayTweets() {
     });
 }
 
-// Function to Copy Code to Clipboard
+// Function to Copy Code
 function copyCodeToClipboard(code, element) {
-    const tempTextArea = document.createElement("textarea");
-    tempTextArea.value = code;
-    document.body.appendChild(tempTextArea);
-    tempTextArea.select();
-    document.execCommand("copy");
-    document.body.removeChild(tempTextArea);
-
-    // Show the "Copied!" tooltip
-    const tooltip = element.querySelector(".copy-tooltip");
-    tooltip.style.display = "block";
-    setTimeout(() => {
-        tooltip.style.display = "none";
-    }, 1500);
+    navigator.clipboard.writeText(code).then(() => {
+        const tooltip = element.querySelector(".copy-tooltip");
+        tooltip.style.display = "block";
+        setTimeout(() => {
+            tooltip.style.display = "none";
+        }, 1500);
+    });
 }
 
-// Fetch and display tweets on page load
+// Fetch on Load
 window.onload = displayTweets;
