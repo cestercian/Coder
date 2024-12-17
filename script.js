@@ -1,38 +1,71 @@
+// Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyDaCViiww_eq9HewkSa5_Xx6DAl9N0c75c",
+    authDomain: "code-copier.firebaseapp.com",
+    databaseURL:"https://code-copier-default-rtdb.asia-southeast1.firebasedatabase.app/",
+    projectId: "code-copier",
+    storageBucket: "code-copier.firebasestorage.app",
+    messagingSenderId: "626621100036",
+    appId: "1:626621100036:web:710b29eeb150cab8280551"
+};
+
+// Initialize Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+// Function to Add Code Tweet to Firebase
 function addCodeTweet() {
-    // Get the user's input
-    const code = document.getElementById("codeInput").value;
+    const codeInput = document.getElementById("codeInput").value;
 
-    // Do not add empty tweets
-    if (code.trim() === "") return;
+    // Do not save empty input
+    if (codeInput.trim() === "") return;
 
-    // Create a new tweet-like block
-    const tweetBlock = document.createElement("div");
-    tweetBlock.className = "tweet-like-block";
-    tweetBlock.textContent = code;
+    // Save the code to Firebase Realtime Database
+    const codeRef = database.ref("tweets/");
+    const newCodeRef = codeRef.push(); // Generate a unique ID
+    newCodeRef.set({
+        code: codeInput,
+        timestamp: Date.now()
+    });
 
-    // Add copy functionality
-    tweetBlock.onclick = function () {
-        copyCodeToClipboard(tweetBlock);
-    };
-
-    // Add a tooltip
-    const tooltip = document.createElement("span");
-    tooltip.className = "copy-tooltip";
-    tooltip.textContent = "Copied!";
-    tweetBlock.appendChild(tooltip);
-
-    // Append the new tweet to the container
-    const container = document.getElementById("tweetsContainer");
-    container.appendChild(tweetBlock);
-
-    // Clear the input area
+    // Clear the input
     document.getElementById("codeInput").value = "";
 }
 
-function copyCodeToClipboard(element) {
-    // Copy the code content to the clipboard
+// Function to Fetch and Display Tweets
+function displayTweets() {
+    const tweetsContainer = document.getElementById("tweetsContainer");
+
+    // Listen for changes in the database
+    const codeRef = database.ref("tweets/");
+    codeRef.on("value", (snapshot) => {
+        tweetsContainer.innerHTML = ""; // Clear container before re-rendering
+        snapshot.forEach((childSnapshot) => {
+            const tweetData = childSnapshot.val();
+            const tweetBlock = document.createElement("div");
+            tweetBlock.className = "tweet-like-block";
+            tweetBlock.textContent = tweetData.code;
+
+            // Add Copy Functionality
+            tweetBlock.onclick = function () {
+                copyCodeToClipboard(tweetData.code, tweetBlock);
+            };
+
+            // Tooltip for Copy Confirmation
+            const tooltip = document.createElement("span");
+            tooltip.className = "copy-tooltip";
+            tooltip.textContent = "Copied!";
+            tweetBlock.appendChild(tooltip);
+
+            tweetsContainer.appendChild(tweetBlock);
+        });
+    });
+}
+
+// Function to Copy Code to Clipboard
+function copyCodeToClipboard(code, element) {
     const tempTextArea = document.createElement("textarea");
-    tempTextArea.value = element.textContent.replace("Copied!", ""); // Exclude tooltip text
+    tempTextArea.value = code;
     document.body.appendChild(tempTextArea);
     tempTextArea.select();
     document.execCommand("copy");
@@ -43,5 +76,8 @@ function copyCodeToClipboard(element) {
     tooltip.style.display = "block";
     setTimeout(() => {
         tooltip.style.display = "none";
-    }, 1500); // Hide after 1.5 seconds
+    }, 1500);
 }
+
+// Fetch and display tweets on page load
+window.onload = displayTweets;
