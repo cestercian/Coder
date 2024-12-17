@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Display Like Tweet</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>Display Code Like a Tweet</h1>
+<p>Enter your code below:</p>
+
+<!-- Code Input Area -->
+<textarea id="codeInput" placeholder="Paste or type your code here..."></textarea>
+
+<!-- Button to Display Code -->
+<button onclick="displayCode()">Display Code</button>
+
+<!-- Output Container -->
+<h2>Your Code (Click to Copy):</h2>
+<div id="output" class="tweet-like-block" onclick="copyCodeToClipboard(event)">
+  <!-- Copy Tooltip -->
+  <span id="tooltip" class="copy-tooltip">Copied!</span>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
