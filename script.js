@@ -2,9 +2,9 @@
 const firebaseConfig = {
     apiKey: "AIzaSyDaCViiww_eq9HewkSa5_Xx6DAl9N0c75c",
     authDomain: "code-copier.firebaseapp.com",
-    databaseURL:"https://code-copier-default-rtdb.asia-southeast1.firebasedatabase.app/",
+    databaseURL: "https://code-copier-default-rtdb.asia-southeast1.firebasedatabase.app/",
     projectId: "code-copier",
-    storageBucket: "code-copier.firebasestorage.app",
+    storageBucket: "code-copier.appspot.com",
     messagingSenderId: "626621100036",
     appId: "1:626621100036:web:710b29eeb150cab8280551"
 };
@@ -35,11 +35,17 @@ function addCodeTweet() {
 // Function to Fetch and Display Tweets
 function displayTweets() {
     const tweetsContainer = document.getElementById("tweetsContainer");
+    tweetsContainer.innerHTML = "<p>Loading...</p>"; // Show loader
 
     // Listen for changes in the database
     const codeRef = database.ref("tweets/");
     codeRef.on("value", (snapshot) => {
-        tweetsContainer.innerHTML = ""; // Clear container before re-rendering
+        tweetsContainer.innerHTML = ""; // Clear the loader
+        if (!snapshot.exists()) {
+            tweetsContainer.innerHTML = "<p>No tweets found!</p>";
+            return;
+        }
+
         snapshot.forEach((childSnapshot) => {
             const tweetData = childSnapshot.val();
             const tweetBlock = document.createElement("div");

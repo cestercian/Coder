@@ -7,18 +7,20 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1>Display Code Like a Tweet</h1>
-<p>Enter your code below:</p>
+<h1>Code Snippet Tweets</h1>
+<p>Enter your code below and save it:</p>
 
 <!-- Code Input Area -->
-<textarea id="codeInput" placeholder="Paste or type your code here..."></textarea>
+<label for="codeInput"></label><textarea id="codeInput" placeholder="Paste or type your code here..."></textarea>
 
 <!-- Button to Add Code -->
 <button onclick="addCodeTweet()">Add Code Tweet</button>
 
 <!-- Tweets Container -->
 <h2>Your Code Tweets (Click to Copy):</h2>
-<div id="tweetsContainer"></div>
+<div id="tweetsContainer">
+  <p>Loading...</p> <!-- Loader Placeholder -->
+</div>
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>

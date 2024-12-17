@@ -6,8 +6,9 @@ body {
     color: #333;
 }
 
-h1 {
+h1, h2 {
     font-size: 1.5rem;
+    margin-bottom: 10px;
 }
 
 textarea {
@@ -66,4 +67,10 @@ button:hover {
     padding: 4px 8px;
     border-radius: 4px;
     display: none;
+}
+
+/* Loader Placeholder */
+#tweetsContainer p {
+    font-style: italic;
+    color: #666;
 }
