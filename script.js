@@ -47,9 +47,16 @@ function displayTweets() {
             tweetsContainer.innerHTML = "<p>No tweets found!</p>";
             return;
         }
-
+        const tweets = [];
         snapshot.forEach((childSnapshot) => {
             const tweetData = childSnapshot.val();
+            tweets.push(tweetData); // Push tweet data to array
+        });
+
+        // Sort tweets by timestamp in descending order (newest first)
+        tweets.sort((a, b) => b.timestamp - a.timestamp);
+        tweets.forEach((tweetData) => {
+            //const tweetData = childSnapshot.val();
             const tweetBlock = document.createElement("div");
             tweetBlock.className = "tweet-like-block";
             tweetBlock.textContent = tweetData.code;
