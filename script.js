@@ -17,7 +17,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-document.getElementById("code-tweet").addEventListener('click', addCodeTweet)
+document.getElementById("code-tweet").addEventListener("click", addCodeTweet);
+
+// Store tweets in memory for search functionality
+let allTweets = [];
 
 // Function to Add Code Tweet
 function addCodeTweet() {
@@ -29,47 +32,35 @@ function addCodeTweet() {
     const newCodeRef = push(codeRef); // Generate unique ID
     set(newCodeRef, {
         code: codeInput,
-        timestamp: Date.now()
+        timestamp: Date.now(),
     });
 
     document.getElementById("codeInput").value = "";
 }
 
 // Function to Fetch and Display Tweets
-function displayTweets() {
+function displayTweets(tweets = allTweets) {
     const tweetsContainer = document.getElementById("tweetsContainer");
-    tweetsContainer.innerHTML = "<p>Loading...</p>";
+    tweetsContainer.innerHTML = "";
 
-    const codeRef = ref(database, "tweets/");
-    onValue(codeRef, (snapshot) => {
-        tweetsContainer.innerHTML = "";
-        if (!snapshot.exists()) {
-            tweetsContainer.innerHTML = "<p>No tweets found!</p>";
-            return;
-        }
-        const tweets = [];
-        snapshot.forEach((childSnapshot) => {
-            const tweetData = childSnapshot.val();
-            tweets.push(tweetData); // Push tweet data to array
-        });
+    if (tweets.length === 0) {
+        tweetsContainer.innerHTML = "<p>No tweets found!</p>";
+        return;
+    }
 
-        // Sort tweets by timestamp in descending order (newest first)
-        tweets.sort((a, b) => b.timestamp - a.timestamp);
-        tweets.forEach((tweetData) => {
-            //const tweetData = childSnapshot.val();
-            const tweetBlock = document.createElement("div");
-            tweetBlock.className = "tweet-like-block";
-            tweetBlock.textContent = tweetData.code;
+    tweets.forEach((tweetData) => {
+        const tweetBlock = document.createElement("div");
+        tweetBlock.className = "tweet-like-block";
+        tweetBlock.textContent = tweetData.code;
 
-            tweetBlock.onclick = () => copyCodeToClipboard(tweetData.code, tweetBlock);
+        tweetBlock.onclick = () => copyCodeToClipboard(tweetData.code, tweetBlock);
 
-            const tooltip = document.createElement("span");
-            tooltip.className = "copy-tooltip";
-            tooltip.textContent = "Copied!";
-            tweetBlock.appendChild(tooltip);
+        const tooltip = document.createElement("span");
+        tooltip.className = "copy-tooltip";
+        tooltip.textContent = "Copied!";
+        tweetBlock.appendChild(tooltip);
 
-            tweetsContainer.appendChild(tweetBlock);
-        });
+        tweetsContainer.appendChild(tweetBlock);
     });
 }
 
@@ -84,5 +75,31 @@ function copyCodeToClipboard(code, element) {
     });
 }
 
+// Fetch Tweets and Enable Search
+function fetchTweets() {
+    const codeRef = ref(database, "tweets/");
+    onValue(codeRef, (snapshot) => {
+        allTweets = [];
+        snapshot.forEach((childSnapshot) => {
+            const tweetData = childSnapshot.val();
+            allTweets.push(tweetData);
+        });
+
+        // Sort tweets by timestamp in descending order (newest first)
+        allTweets.sort((a, b) => b.timestamp - a.timestamp);
+
+        displayTweets(allTweets);
+    });
+}
+
+// Search Functionality
+document.getElementById("searchBar").addEventListener("input", (e) => {
+    const query = e.target.value.toLowerCase();
+    const filteredTweets = allTweets.filter((tweet) =>
+        tweet.code.toLowerCase().includes(query)
+    );
+    displayTweets(filteredTweets);
+});
+
 // Fetch on Load
-window.onload = displayTweets;
+window.onload = fetchTweets;

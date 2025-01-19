@@ -76,3 +76,21 @@ button:hover {
     font-style: italic;
     color: #666;
 }
+
+/* Search Bar Styling */
+#searchBar {
+    width: 100%;
+    padding: 10px;
+    margin: 20px 0; /* Adjust margin for spacing */
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    background-color: #fff;
+}
+
+#searchBar:focus {
+    border-color: #007BFF; /* Highlight border on focus */
+    outline: none; /* Remove default focus outline */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Subtle glow */
+}
