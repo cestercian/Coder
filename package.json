@@ -1,0 +1,17 @@
+{
+  "name": "coder",
+  "version": "1.0.0",
+  "description": "This project allows users to paste or type code snippets, save them, and display them as \"tweets\" on a webpage. Users can also search through the tweets and copy them to their clipboard.",
+  "main": "script.js",
+  "scripts": {
+    "test": "jest --coverage",
+    "coveralls": "cat ./coverage/lcov.info | coveralls"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "coveralls": "^3.1.1",
+    "jest": "^29.7.0"
+  }
+}
