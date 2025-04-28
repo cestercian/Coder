@@ -138,3 +138,6 @@ document.getElementById("searchBar").addEventListener("input", (e) => {
 
 // Fetch on Page Load
 window.onload = fetchTweets;
+
+// Only for Jest testing
+export { copyCodeToClipboard, handleTweetClick, deleteTweet };
