@@ -3,17 +3,17 @@ let initializeApp, getDatabase, ref, push, set, onValue;
 let isNode = typeof module !== 'undefined' && module.exports;
 
 if (isNode) {
-  // Node.js/Jest: use require with mockable URLs
+  // Node.js/Jest: use require with mockable URLs (Firebase v9+ modular syntax)
   ({ initializeApp } = require('https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js'));
   ({ getDatabase, ref, push, set, onValue } = require('https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js'));
 } else {
-  // Browser: use Firebase loaded via <script> tags
+  // Browser: use Firebase v8 loaded via <script> tags
   initializeApp = firebase.initializeApp;
-  getDatabase = firebase.database;
-  ref = firebase.database().ref;
-  push = firebase.database().ref().push;
-  set = firebase.database().ref().set;
-  onValue = function(ref, cb) { ref.on('value', cb); } // Adapt for browser
+  getDatabase = () => firebase.database();
+  ref = (db, path) => db.ref(path);
+  push = (ref) => ref.push();
+  set = (ref, value) => ref.set(value);
+  onValue = (ref, cb) => ref.on('value', cb);
 }
 
 
