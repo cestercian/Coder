@@ -1,6 +1,6 @@
 // Import Firebase modules (using local npm package for Node.js/Jest compatibility)
-const { initializeApp } = require('firebase/app');
-const { getDatabase, ref, push, set, onValue } = require('firebase/database');
+const { initializeApp } = require('https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js');
+const { getDatabase, ref, push, set, onValue } = require('https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js');
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -103,7 +103,7 @@ function handleTweetClick(tweetData, element, tweetKey) {
     tweetClickTracker.set(tweetKey, tracker);
 
     // Still allow copy on every click
-    copyCodeToClipboard(tweetData.code, element);
+    module.exports.copyCodeToClipboard(tweetData.code, element);
 }
 
 // Delete Tweet Function
@@ -140,4 +140,4 @@ document.getElementById("searchBar").addEventListener("input", (e) => {
 window.onload = fetchTweets;
 
 // Only for Jest testing
-module.exports = { copyCodeToClipboard, handleTweetClick, deleteTweet };
+module.exports = { copyCodeToClipboard, handleTweetClick, deleteTweet, addCodeTweet, displayTweets, fetchTweets, tweetClickTracker };

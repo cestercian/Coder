@@ -48,7 +48,7 @@ document.body.innerHTML = `
 
 // --- Import/Require the script *after* all mocks are set up ---
 // Use require here as import statements are hoisted and might run before mocks
-const { copyCodeToClipboard, handleTweetClick, deleteTweet } = require('./script');
+const { copyCodeToClipboard, handleTweetClick, deleteTweet, addCodeTweet, displayTweets, fetchTweets, tweetClickTracker } = require('./script');
 
 
 // --- Your Tests ---
@@ -86,38 +86,119 @@ describe('Clipboard Functionality', () => {
 });
 
 // --- Add More Tests ---
-// Example structure for testing addCodeTweet (needs Firebase mocks)
-// describe('Add Tweet Functionality', () => {
-//   const { set: firebaseSetMock } = require('https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js');
-//   const { addCodeTweet } = require('./script');
+const { set: firebaseSetMock, ref: firebaseRefMock, push: firebasePushMock, onValue: firebaseOnValueMock } = require('https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js');
 
-//   beforeEach(() => {
-//     firebaseSetMock.mockClear();
-//     document.getElementById('codeInput').value = ''; // Reset input
-//   });
+describe('Add Tweet Functionality', () => {
+    beforeEach(() => {
+        firebaseSetMock.mockClear();
+        firebasePushMock.mockClear();
+        document.getElementById('codeInput').value = '';
+    });
 
-//   test('should call Firebase set with code and timestamp', () => {
-//     const codeInput = document.getElementById('codeInput');
-//     const testCode = 'function hello() {}';
-//     codeInput.value = testCode;
+    test('should call Firebase set with code and timestamp', () => {
+        const codeInput = document.getElementById('codeInput');
+        const testCode = 'function hello() {}';
+        codeInput.value = testCode;
 
-//     addCodeTweet();
+        addCodeTweet();
 
-//     expect(firebaseSetMock).toHaveBeenCalledTimes(1);
-//     // Check the structure of the data sent to Firebase set
-//     expect(firebaseSetMock).toHaveBeenCalledWith(
-//       expect.stringContaining('mockRef(tweets/)/mockPushId'), // Check if the correct ref was used
-//       expect.objectContaining({ // Check the object structure
-//         code: testCode,
-//         timestamp: expect.any(Number), // Timestamp should be a number
-//       })
-//     );
-//     expect(codeInput.value).toBe(''); // Input should be cleared
-//   });
+        expect(firebaseSetMock).toHaveBeenCalledTimes(1);
+        expect(firebaseSetMock.mock.calls[0][1]).toMatchObject({
+            code: testCode,
+            timestamp: expect.any(Number),
+        });
+        expect(codeInput.value).toBe('');
+    });
 
-//   test('should not call Firebase set if input is empty', () => {
-//      document.getElementById('codeInput').value = '   '; // Whitespace only
-//      addCodeTweet();
-//      expect(firebaseSetMock).not.toHaveBeenCalled();
-//   });
-// });
+    test('should not call Firebase set if input is empty', () => {
+        document.getElementById('codeInput').value = '   ';
+        addCodeTweet();
+        expect(firebaseSetMock).not.toHaveBeenCalled();
+    });
+});
+
+describe('Display Tweets', () => {
+    beforeEach(() => {
+        document.getElementById('tweetsContainer').innerHTML = '';
+    });
+    test('shows no tweets found if empty', () => {
+        displayTweets([]);
+        expect(document.getElementById('tweetsContainer').innerHTML).toContain('No tweets found!');
+    });
+    test('renders tweets and attaches click handler', () => {
+        const tweets = [{ code: 'abc', key: 'k1', timestamp: 1 }];
+        displayTweets(tweets);
+        const tweetBlock = document.querySelector('.tweet-like-block');
+        expect(tweetBlock).not.toBeNull();
+        expect(tweetBlock.textContent).toContain('abc');
+        // Simulate click
+        tweetBlock.click();
+        // Should call handleTweetClick (covered indirectly)
+    });
+});
+
+describe('handleTweetClick', () => {
+    let tweetData, element, tweetKey;
+    beforeEach(() => {
+        tweetData = { code: 'test', key: 'key1' };
+        element = document.createElement('div');
+        const tooltip = document.createElement('span');
+        tooltip.className = 'copy-tooltip';
+        tooltip.style.display = 'none';
+        element.appendChild(tooltip);
+        tweetKey = 'key1';
+        // Reset tracker
+        const tracker = require('./script').tweetClickTracker;
+        if (tracker) tracker.delete(tweetKey);
+    });
+    test('increments count and triggers delete after 10 clicks in 5s', () => {
+        for (let i = 0; i < 10; i++) {
+            handleTweetClick(tweetData, element, tweetKey);
+        }
+        expect(firebaseSetMock).toHaveBeenCalled(); // deleteTweet called
+    });
+    test('resets count if more than 5s passed', () => {
+        handleTweetClick(tweetData, element, tweetKey);
+        // Simulate time passing
+        const tracker = require('./script').tweetClickTracker;
+        const obj = tracker.get(tweetKey);
+        obj.firstClickTime -= 6000;
+        tracker.set(tweetKey, obj);
+        handleTweetClick(tweetData, element, tweetKey);
+        expect(tracker.get(tweetKey).count).toBe(1);
+    });
+    test('calls copyCodeToClipboard on every click', () => {
+        // Save original
+        const mod = require('./script');
+        const origCopy = mod.copyCodeToClipboard;
+        const mockCopy = jest.fn();
+        mod.copyCodeToClipboard = mockCopy;
+        handleTweetClick(tweetData, element, tweetKey);
+        expect(mockCopy).toHaveBeenCalledWith('test', element);
+        // Restore
+        mod.copyCodeToClipboard = origCopy;
+    });
+});
+
+describe('deleteTweet', () => {
+    test('calls set with null to delete', () => {
+        deleteTweet('delKey');
+        expect(firebaseSetMock).toHaveBeenCalledWith(expect.stringContaining('mockRef(tweets/delKey)'), null);
+    });
+});
+
+describe('fetchTweets', () => {
+    test('calls onValue and sorts/updates allTweets', () => {
+        // Setup snapshot mock
+        const childSnapshotMock = { val: () => ({ code: 'c', timestamp: 2 }), key: 'k' };
+        const forEachMock = jest.fn(cb => { cb(childSnapshotMock); });
+        const snapshotMock = { forEach: forEachMock };
+        firebaseOnValueMock.mockImplementationOnce((ref, cb) => {
+            cb(snapshotMock);
+            return jest.fn();
+        });
+        fetchTweets();
+        // allTweets should be updated and displayTweets called
+        expect(forEachMock).toHaveBeenCalled();
+    });
+});
