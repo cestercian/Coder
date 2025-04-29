@@ -1,6 +1,21 @@
-// Import Firebase modules (using local npm package for Node.js/Jest compatibility)
-const { initializeApp } = require('https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js');
-const { getDatabase, ref, push, set, onValue } = require('https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js');
+// Universal Firebase import: Node.js for Jest, globals for browser
+let initializeApp, getDatabase, ref, push, set, onValue;
+let isNode = typeof module !== 'undefined' && module.exports;
+
+if (isNode) {
+  // Node.js/Jest: use require with mockable URLs
+  ({ initializeApp } = require('https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js'));
+  ({ getDatabase, ref, push, set, onValue } = require('https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js'));
+} else {
+  // Browser: use Firebase loaded via <script> tags
+  initializeApp = firebase.initializeApp;
+  getDatabase = firebase.database;
+  ref = firebase.database().ref;
+  push = firebase.database().ref().push;
+  set = firebase.database().ref().set;
+  onValue = function(ref, cb) { ref.on('value', cb); } // Adapt for browser
+}
+
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -15,7 +30,7 @@ const firebaseConfig = {
 
 // Initialize Firebase and Database
 const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+const database = isNode ? getDatabase(app) : firebase.database();
 
 // Event Listener for Add Button
 document.getElementById("code-tweet").addEventListener("click", addCodeTweet);
@@ -139,5 +154,7 @@ document.getElementById("searchBar").addEventListener("input", (e) => {
 // Fetch on Page Load
 window.onload = fetchTweets;
 
-// Only for Jest testing
-module.exports = { copyCodeToClipboard, handleTweetClick, deleteTweet, addCodeTweet, displayTweets, fetchTweets, tweetClickTracker };
+// Only for Jest/Node.js testing
+if (isNode) {
+  module.exports = { copyCodeToClipboard, handleTweetClick, deleteTweet, addCodeTweet, displayTweets, fetchTweets, tweetClickTracker };
+}
