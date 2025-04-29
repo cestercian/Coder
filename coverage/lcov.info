@@ -32,6 +32,8 @@ FNDA:0,(anonymous_11)
 FNDA:0,(anonymous_12)
 FNDA:0,(anonymous_13)
 FNDA:0,(anonymous_14)
+DA:2,1
+DA:3,1
 DA:6,1
 DA:17,1
 DA:18,1
@@ -92,8 +94,9 @@ DA:133,0
 DA:134,0
 DA:136,0
 DA:140,1
-LF:60
-LH:13
+DA:143,1
+LF:63
+LH:16
 BRDA:32,0,0,0
 BRDA:32,0,1,0
 BRDA:45,1,0,0
