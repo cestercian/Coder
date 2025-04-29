@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1745875967411" clover="3.2.0">
-  <project timestamp="1745875967411" name="All files">
-    <metrics statements="60" coveredstatements="13" conditionals="11" coveredconditionals="0" methods="15" coveredmethods="3" elements="86" coveredelements="16" complexity="0" loc="60" ncloc="60" packages="1" files="1" classes="1"/>
+<coverage generated="1745876614863" clover="3.2.0">
+  <project timestamp="1745876614863" name="All files">
+    <metrics statements="63" coveredstatements="16" conditionals="11" coveredconditionals="0" methods="15" coveredmethods="3" elements="89" coveredelements="19" complexity="0" loc="63" ncloc="63" packages="1" files="1" classes="1"/>
     <file name="script.js" path="/Users/cestercian/Documents/GitHub/Coder/script.js">
-      <metrics statements="60" coveredstatements="13" conditionals="11" coveredconditionals="0" methods="15" coveredmethods="3"/>
+      <metrics statements="63" coveredstatements="16" conditionals="11" coveredconditionals="0" methods="15" coveredmethods="3"/>
+      <line num="2" count="1" type="stmt"/>
+      <line num="3" count="1" type="stmt"/>
       <line num="6" count="1" type="stmt"/>
       <line num="17" count="1" type="stmt"/>
       <line num="18" count="1" type="stmt"/>
@@ -64,6 +66,7 @@
       <line num="134" count="0" type="stmt"/>
       <line num="136" count="0" type="stmt"/>
       <line num="140" count="1" type="stmt"/>
+      <line num="143" count="1" type="stmt"/>
     </file>
   </project>
 </coverage>
