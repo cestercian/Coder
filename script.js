@@ -1,6 +1,6 @@
-// Import Firebase modules
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+// Import Firebase modules (using local npm package for Node.js/Jest compatibility)
+const { initializeApp } = require('firebase/app');
+const { getDatabase, ref, push, set, onValue } = require('firebase/database');
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -140,4 +140,4 @@ document.getElementById("searchBar").addEventListener("input", (e) => {
 window.onload = fetchTweets;
 
 // Only for Jest testing
-export { copyCodeToClipboard, handleTweetClick, deleteTweet };
+module.exports = { copyCodeToClipboard, handleTweetClick, deleteTweet };
