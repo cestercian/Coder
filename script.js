@@ -1,4 +1,4 @@
-// Import Firebase modulesMore actions
+// Import Firebase modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
 import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
@@ -17,23 +17,19 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-// Event Listener for Add Button
 document.getElementById("code-tweet").addEventListener("click", addCodeTweet);
 
-// Store tweets in memory for search
+// Store tweets in memory for search functionality
 let allTweets = [];
 
-// Map to track clicks for hidden delete
-const tweetClickTracker = new Map();
-
-// Add Code Tweet Function
+// Function to Add Code Tweet
 function addCodeTweet() {
     const codeInput = document.getElementById("codeInput").value;
 
     if (codeInput.trim() === "") return;
 
     const codeRef = ref(database, "tweets/");
-    const newCodeRef = push(codeRef);
+    const newCodeRef = push(codeRef); // Generate unique ID
     set(newCodeRef, {
         code: codeInput,
         timestamp: Date.now(),
@@ -42,7 +38,7 @@ function addCodeTweet() {
     document.getElementById("codeInput").value = "";
 }
 
-// Display Tweets
+// Function to Fetch and Display Tweets
 function displayTweets(tweets = allTweets) {
     const tweetsContainer = document.getElementById("tweetsContainer");
     tweetsContainer.innerHTML = "";
@@ -57,7 +53,7 @@ function displayTweets(tweets = allTweets) {
         tweetBlock.className = "tweet-like-block";
         tweetBlock.textContent = tweetData.code;
 
-        tweetBlock.onclick = () => handleTweetClick(tweetData, tweetBlock, tweetData.key);
+        tweetBlock.onclick = () => copyCodeToClipboard(tweetData.code, tweetBlock);
 
         const tooltip = document.createElement("span");
         tooltip.className = "copy-tooltip";
@@ -68,7 +64,7 @@ function displayTweets(tweets = allTweets) {
     });
 }
 
-// Copy Code Function
+// Function to Copy Code
 function copyCodeToClipboard(code, element) {
     navigator.clipboard.writeText(code).then(() => {
         const tooltip = element.querySelector(".copy-tooltip");
@@ -79,51 +75,17 @@ function copyCodeToClipboard(code, element) {
     });
 }
 
-// Hidden Delete Handler
-function handleTweetClick(tweetData, element, tweetKey) {
-    const now = Date.now();
-    const tracker = tweetClickTracker.get(tweetKey) || {
-        count: 0,
-        firstClickTime: now,More actions
-    };
-
-    if (now - tracker.firstClickTime > 5000) {
-        tracker.count = 0;
-        tracker.firstClickTime = now;
-    }
-
-    tracker.count += 1;
-
-    // Trigger delete if clicked 10 times within 5 seconds
-    if (tracker.count >= 10) {
-        deleteTweet(tweetKey);
-        tweetClickTracker.delete(tweetKey);
-        return;
-    }
-
-    tweetClickTracker.set(tweetKey, tracker);
-
-    // Still allow copy on every click
-    copyCodeToClipboard(tweetData.code, element);
-}
-
-// Delete Tweet Function
-function deleteTweet(tweetKey) {
-    const codeRef = ref(database, `tweets/${tweetKey}`);
-    set(codeRef, null); // Delete by setting to null
-}
-
-// Fetch Tweets
+// Fetch Tweets and Enable Search
 function fetchTweets() {
     const codeRef = ref(database, "tweets/");
     onValue(codeRef, (snapshot) => {
         allTweets = [];
         snapshot.forEach((childSnapshot) => {
             const tweetData = childSnapshot.val();
-            allTweets.push({ ...tweetData, key: childSnapshot.key });
+            allTweets.push(tweetData);
         });
 
-
+        // Sort tweets by timestamp in descending order (newest first)
         allTweets.sort((a, b) => b.timestamp - a.timestamp);
 
         displayTweets(allTweets);
@@ -139,5 +101,5 @@ document.getElementById("searchBar").addEventListener("input", (e) => {
     displayTweets(filteredTweets);
 });
 
-// Fetch on Page Load
+// Fetch on Load
 window.onload = fetchTweets;
