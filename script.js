@@ -142,7 +142,7 @@ function copyCodeToClipboard(code, element)
 
 function searchTweets(e) 
 {
-  const q = e.target.value.toLowerCase();
-  const filtered = allTweets.filter(t => t.code.toLowerCase().includes(q));
+  var q = e.target.value.toLowerCase();
+  var filtered = allTweets.filter(t => t.code.toLowerCase().includes(q));
   displayTweets(filtered);
 }
