@@ -94,3 +94,62 @@ button:hover {
     outline: none; /* Remove default focus outline */
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Subtle glow */
 }
+
+/* Dark Mode Styles */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #181a1b;
+        color: #eaeaea;
+    }
+
+    h1, h2 {
+        color: #fafafa;
+    }
+
+    textarea {
+        background-color: #22242a;
+        color: #fafafa;
+        border: 1px solid #444;
+    }
+
+    button {
+        background-color: #2563eb;
+        color: #fafafa;
+    }
+
+    button:hover {
+        background-color: #1a47b8;
+    }
+
+    .tweet-like-block {
+        background-color: #23272f;
+        border-color: #333;
+        color: #eaeaea;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    .tweet-like-block:hover {
+        background-color: #22242a;
+    }
+
+    .copy-tooltip {
+        background-color: #2563eb;
+        color: #fff;
+    }
+
+    #tweetsContainer p {
+        color: #aaa;
+    }
+
+    #searchBar {
+        background-color: #23272f;
+        color: #fafafa;
+        border: 1px solid #444;
+    }
+
+    #searchBar:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
+    }
+}
+
