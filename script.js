@@ -19,7 +19,7 @@ const database = getDatabase(app);
 
 document.getElementById("code-tweet").addEventListener("click", addCodeTweet);
 
-// Store tweets in memory for search functionality
+// Store tweets and their keys in memory for search and deletion
 let allTweets = [];
 let allTweetKeys = [];
 
@@ -59,22 +59,41 @@ function displayTweets(tweets = allTweets, keys = allTweetKeys) {
         const tweetBlock = document.createElement("div");
         tweetBlock.className = "tweet-like-block";
         tweetBlock.textContent = tweetData.code;
-        tweetBlock.onclick = () => copyCodeToClipboard(tweetData.code, tweetBlock);
 
+        // Tooltip for copy
         const tooltip = document.createElement("span");
         tooltip.className = "copy-tooltip";
         tooltip.textContent = "Copied!";
         tweetBlock.appendChild(tooltip);
 
-        // Add Delete Button
+        // Delete button
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "Delete";
         deleteBtn.style.marginLeft = "10px";
         deleteBtn.onclick = (e) => {
-            e.stopPropagation(); // Prevent copy on delete
+            e.stopPropagation();
             deleteCodeTweet(keys[idx]);
         };
         tweetBlock.appendChild(deleteBtn);
+
+        // --- Deletion by 8 clicks on code block (not delete button) ---
+        let clickCount = 0;
+        tweetBlock.addEventListener("click", (e) => {
+            // Ignore clicks on the delete button
+            if (e.target === deleteBtn) return;
+            clickCount++;
+            if (clickCount === 8) {
+                e.stopPropagation();
+                const confirmDelete = confirm("Are you sure you want to delete this code tweet? This action cannot be undone.");
+                if (confirmDelete) {
+                    deleteCodeTweet(keys[idx]);
+                }
+                clickCount = 0;
+            } else {
+                // Copy to clipboard on other clicks
+                copyCodeToClipboard(tweetData.code, tweetBlock);
+            }
+        });
 
         tweetsContainer.appendChild(tweetBlock);
     });
