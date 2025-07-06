@@ -66,16 +66,6 @@ function displayTweets(tweets = allTweets, keys = allTweetKeys) {
         tooltip.textContent = "Copied!";
         tweetBlock.appendChild(tooltip);
 
-        // Delete button
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "Delete";
-        deleteBtn.style.marginLeft = "10px";
-        deleteBtn.onclick = (e) => {
-            e.stopPropagation();
-            deleteCodeTweet(keys[idx]);
-        };
-        tweetBlock.appendChild(deleteBtn);
-
         // --- Deletion by 8 clicks on code block (not delete button) ---
         let clickCount = 0;
         tweetBlock.addEventListener("click", (e) => {
