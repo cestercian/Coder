@@ -1,6 +1,6 @@
 // Import Firebase modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+import { getDatabase, ref, push, set, onValue, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -19,8 +19,9 @@ const database = getDatabase(app);
 
 document.getElementById("code-tweet").addEventListener("click", addCodeTweet);
 
-// Store tweets in memory for search functionality
+// Store tweets and their keys in memory for search and deletion
 let allTweets = [];
+let allTweetKeys = [];
 
 // Function to Add Code Tweet
 function addCodeTweet() {
@@ -38,8 +39,14 @@ function addCodeTweet() {
     document.getElementById("codeInput").value = "";
 }
 
+// Function to Delete Code Tweet
+function deleteCodeTweet(key) {
+    const codeRef = ref(database, `tweets/${key}`);
+    remove(codeRef);
+}
+
 // Function to Fetch and Display Tweets
-function displayTweets(tweets = allTweets) {
+function displayTweets(tweets = allTweets, keys = allTweetKeys) {
     const tweetsContainer = document.getElementById("tweetsContainer");
     tweetsContainer.innerHTML = "";
 
@@ -48,17 +55,33 @@ function displayTweets(tweets = allTweets) {
         return;
     }
 
-    tweets.forEach((tweetData) => {
+    tweets.forEach((tweetData, idx) => {
         const tweetBlock = document.createElement("div");
         tweetBlock.className = "tweet-like-block";
         tweetBlock.textContent = tweetData.code;
 
-        tweetBlock.onclick = () => copyCodeToClipboard(tweetData.code, tweetBlock);
-
+        // Tooltip for copy
         const tooltip = document.createElement("span");
         tooltip.className = "copy-tooltip";
         tooltip.textContent = "Copied!";
         tweetBlock.appendChild(tooltip);
+
+        // --- Deletion by 8 clicks on code block ---
+        let clickCount = 0;
+        tweetBlock.addEventListener("click", (e) => {
+            clickCount++;
+            if (clickCount === 8) {
+                e.stopPropagation();
+                const confirmDelete = confirm("Are you sure you want to delete this code tweet? This action cannot be undone.");
+                if (confirmDelete) {
+                    deleteCodeTweet(keys[idx]);
+                }
+                clickCount = 0;
+            } else {
+                // Copy to clipboard on other clicks
+                copyCodeToClipboard(tweetData.code, tweetBlock);
+            }
+        });
 
         tweetsContainer.appendChild(tweetBlock);
     });
@@ -80,25 +103,28 @@ function fetchTweets() {
     const codeRef = ref(database, "tweets/");
     onValue(codeRef, (snapshot) => {
         allTweets = [];
+        allTweetKeys = [];
         snapshot.forEach((childSnapshot) => {
             const tweetData = childSnapshot.val();
             allTweets.push(tweetData);
+            allTweetKeys.push(childSnapshot.key);
         });
-
         // Sort tweets by timestamp in descending order (newest first)
-        allTweets.sort((a, b) => b.timestamp - a.timestamp);
-
-        displayTweets(allTweets);
+        const zipped = allTweets.map((tweet, i) => ({tweet, key: allTweetKeys[i]}));
+        zipped.sort((a, b) => b.tweet.timestamp - a.tweet.timestamp);
+        allTweets = zipped.map(z => z.tweet);
+        allTweetKeys = zipped.map(z => z.key);
+        displayTweets(allTweets, allTweetKeys);
     });
 }
 
 // Search Functionality
 document.getElementById("searchBar").addEventListener("input", (e) => {
     const query = e.target.value.toLowerCase();
-    const filteredTweets = allTweets.filter((tweet) =>
-        tweet.code.toLowerCase().includes(query)
-    );
-    displayTweets(filteredTweets);
+    const filtered = allTweets
+        .map((tweet, i) => ({tweet, key: allTweetKeys[i]}))
+        .filter(obj => obj.tweet.code.toLowerCase().includes(query));
+    displayTweets(filtered.map(obj => obj.tweet), filtered.map(obj => obj.key));
 });
 
 // Fetch on Load

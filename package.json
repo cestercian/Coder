@@ -1,0 +1,23 @@
+{
+  "name": "coder-code-tweet",
+  "version": "1.0.0",
+  "description": "A web app to save and manage code snippets like tweets, with dark mode and Firebase backend.",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve ."
+  },
+  "keywords": [
+    "code",
+    "snippets",
+    "tweet",
+    "firebase",
+    "vanilla-js",
+    "dark-mode"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "serve": "^14.2.0"
+  }
+} 
