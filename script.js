@@ -17,6 +17,26 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
+//Input Focus and Search Bar Functionality
+const input =  document.getElementById("codeInput")
+const searchBox = document.getElementById("searchBar")
+
+window.addEventListener("keydown", ()=>{
+    if (document.activeElement !== searchBox) {
+        input.focus();
+    }
+})
+
+window.addEventListener("load", (event) => {
+    // Ignore if the user is pressing modifier keys
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+
+    // Only refocus if the input is not already active
+    if (document.activeElement !== searchBox) {
+        searchBox.focus();
+    }
+})
+
 document.getElementById("code-tweet").addEventListener("click", addCodeTweet);
 
 // Store tweets and their keys in memory for search and deletion
