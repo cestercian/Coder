@@ -17,6 +17,29 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
+window.addEventListener("DOMContentLoaded", () => {
+
+    const codeInputEl = document.getElementById("codeInput");
+    const searchBoxEl = document.getElementById("searchBar");
+    if (!codeInputEl || !searchBoxEl) return;
+
+    // Focus the search bar once the DOM is ready
+    searchBoxEl.focus();
+
+    // On any key press, focus the code input unless the search bar is active.
+    window.addEventListener("keydown", (e) => {
+        if (e.ctrlKey || e.metaKey || e.altKey) return; // don’t hijack shortcuts
+        const ignoreKeys = [
+            "Tab", "Escape",
+            "F1","F2","F3","F4","F5","F6","F7","F8","F9","F10","F11","F12"
+        ];
+        if (ignoreKeys.includes(e.key)) return;
+        if (document.activeElement !== searchBoxEl) {
+            codeInputEl.focus();
+        }
+    });
+});
+
 document.getElementById("code-tweet").addEventListener("click", addCodeTweet);
 
 // Store tweets and their keys in memory for search and deletion
