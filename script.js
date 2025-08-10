@@ -17,25 +17,28 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-//Input Focus and Search Bar Functionality
-const input =  document.getElementById("codeInput")
-const searchBox = document.getElementById("searchBar")
+window.addEventListener("DOMContentLoaded", () => {
 
-window.addEventListener("keydown", ()=>{
-    if (document.activeElement !== searchBox) {
-        input.focus();
-    }
-})
+    const codeInputEl = document.getElementById("codeInput");
+    const searchBoxEl = document.getElementById("searchBar");
+    if (!codeInputEl || !searchBoxEl) return;
 
-window.addEventListener("load", (event) => {
-    // Ignore if the user is pressing modifier keys
-    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    // Focus the search bar once the DOM is ready
+    searchBoxEl.focus();
 
-    // Only refocus if the input is not already active
-    if (document.activeElement !== searchBox) {
-        searchBox.focus();
-    }
-})
+    // On any key press, focus the code input unless the search bar is active.
+    window.addEventListener("keydown", (e) => {
+        if (e.ctrlKey || e.metaKey || e.altKey) return; // don’t hijack shortcuts
+        const ignoreKeys = [
+            "Tab", "Escape",
+            "F1","F2","F3","F4","F5","F6","F7","F8","F9","F10","F11","F12"
+        ];
+        if (ignoreKeys.includes(e.key)) return;
+        if (document.activeElement !== searchBoxEl) {
+            codeInputEl.focus();
+        }
+    });
+});
 
 document.getElementById("code-tweet").addEventListener("click", addCodeTweet);
 
